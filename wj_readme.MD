@@ -35,4 +35,5 @@ lambda function: functional programming
 
 # 5 std::mutex and preventing data races in C++
 - thread5.cpp
+- mutex: mutual exclusion. Only 1 thread can enter critical section (atomic: smallest unit that can be accessed. Indivisible. Cannot be accessed by other thread until current thread finishes.) at any one time between lock() and unlock(). 
 - comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
