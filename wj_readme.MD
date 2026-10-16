@@ -33,3 +33,6 @@ lambda function: functional programming
 - thread4.cpp
 - Uses jthread so that we dont need to join by end of main program. jthread will join for us in the destructor. Available in C++20. Previously, we use thread which is available in C++11.
 
+# 5 std::mutex and preventing data races in C++
+- thread5.cpp
+- comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
