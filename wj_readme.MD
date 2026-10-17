@@ -37,3 +37,12 @@ lambda function: functional programming
 - thread5.cpp
 - mutex: mutual exclusion. Only 1 thread can enter critical section (atomic: smallest unit that can be accessed. Indivisible. Cannot be accessed by other thread until current thread finishes.) at any one time between lock() and unlock(). 
 - comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
+- indentation of code inside lock() and unlock()
+
+# 6 Preventing deadlock with std::lock_guard in modern C++
+- thread6.cpp
+- if using lock() and forget to unlock(), will enter into deadlock as other threads cannot progress.
+- Sometime, code is complicated and it is not just a matter of forget to unlock(). Eg is try catch block.
+- soln: use better primitives like lock_guard (mutex wrapper that provides RAII-style). Auto unlock() when destructor of lock_guard is called
+- scoped_lock is preferred one in C++17 with multiple mutex protection.
+- RAII: Resource Acquisition Is Initialization. C++ programming technique where a resource is acquired when an object is constructed and automatically released when the object is destroyed. Key idea is to use object lifetime to manage resources automatically, instead of manually releasing them.
