@@ -9,7 +9,7 @@ https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50O
     - can have multiple cpp files
     - can also compile each cpp file separately into .o file (using -c option to compile source code without linking executable) and then g++ to compile all the .o to final executable. This is common in big project.
     - -o <programname>: compile into executable
-- myThread(&test, 100): pass in function name, then function argument.
+- myThread(&test, 100): pass in function name, then function argument. Can be multiple arguments.
 - threadInst.join(): current thread wait for threadInst to complete, then continue.
 -- join() needed in order to avoid core dump in program.
 
@@ -48,8 +48,14 @@ lambda function: functional programming
 - RAII: Resource Acquisition Is Initialization. C++ programming technique where a resource is acquired when an object is constructed and automatically released when the object is destroyed. Key idea is to use object lifetime to manage resources automatically, instead of manually releasing them.
 
 # 7 Using std::atomic in modern C++ to update a shared value
+- atomics1.cpp
 - simpler soln if considering a single shared resource like variable a.
 - atomic: atom or indivisible.
 - use a++; or a+=1; instead of a=a+1;
 - use hardware to implement.
 - applicable for primitive data type (bool, char, short, int, etc.)
+
+# 8 Example Data Parallel C++ Program using multiple threads in SFML
+- SFML: Simple and Fast Multimedia Library
+- update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
+- Polymorphism: sf with different shapes (CircleShape, etc.)
