@@ -1,10 +1,19 @@
-Introduction to Concurrency in C++
-https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50OCXM
+# Introduction to Concurrency in C++
+- By Mike Shah
+- https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50OCXM
 
 # 1 The what and why of concurrency
+- What: work on more things at same time.
+- Why: Get better performance. Make UI responsive while processing data.
+- Difference between concurrent and Parallel:
+    - Concurrent: 2 queues of people queueing for 1 coffee machine
+    - Parallel: 2 independent queues of people queueing for 2 coffee machine.
+- How: threading or other methods (Process)
+- Problem: need to synchronize when working on shared resources to prevent data race issues.
+
 # 2 First thread with std::thread
 - thread1.cpp
-- #include <thread>
+- `#include <thread>`
 - g++ -std=c++17 -pthread thread1.cpp -o prog
     - g++: compile c++ code. use GNU c++ compiler
     - -std=c++17: use c++17 language standard
@@ -38,7 +47,7 @@ lambda function: functional programming
 
 # 6 std::mutex and preventing data races in C++
 - thread5.cpp
-- #include <mutex>
+- `#include <mutex>`
 - mutex: mutual exclusion. Only 1 thread can enter critical section (atomic: smallest unit that can be accessed. Indivisible. Cannot be accessed by other thread until current thread finishes.) at any one time between lock() and unlock(). 
 - comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
 - indentation of code inside lock() and unlock()
@@ -53,7 +62,7 @@ lambda function: functional programming
 
 # 8 Using std::atomic in modern C++ to update a shared value
 - atomics1.cpp
-- #include <atomic>
+- `#include` <atomic>`
 - simpler soln if considering a single shared resource like variable a.
 - atomic: atom or indivisible.
 - use a++; or a+=1; instead of a=a+1;
@@ -62,14 +71,14 @@ lambda function: functional programming
 
 # 9 Example Data Parallel C++ Program using multiple threads in SFML
 - sfml_grid.cpp
-- #include <SFML/Graphics.hpp>
+- `#include <SFML/Graphics.hpp>`
 - SFML: Simple and Fast Multimedia Library
 - update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
 - Polymorphism: sf with different shapes (CircleShape, etc.)
 
 # 10 Condition Variable in Modern cpp and unique lock
 - cv.cpp
-- #include <condition_variable>
+- `#include <condition_variable>`
 - using normal mutex, other threads will be spinlocking while waiting, wasting resources.
 - common in producer, consumer paradigm.
 - required variables
@@ -82,12 +91,12 @@ lambda function: functional programming
 - work thread to set notified to true and notify_one() when complete its work
 - reporter thread to if(!notified) gConditionVariable.wait(lock);
 
-| Feature | std::lock_guard | std::unique_lock |
-|---|---|---|
-| Auto lock | Yes | Yes |
-| Auto unlock | Yes | Yes |
-| Manual unlock | No | Yes |
-| Condition variable | No | Yes |
+    | Feature | std::lock_guard | std::unique_lock |
+    |---|---|---|
+    | Auto lock | Yes | Yes |
+    | Auto unlock | Yes | Yes |
+    | Manual unlock | No | Yes |
+    | Condition variable | No | Yes |
 
 - Predicate version vs if version
     '''
@@ -110,7 +119,7 @@ lambda function: functional programming
 
 # 11 std::future and std::async in Modern cpp
 - async.cpp
-- #include <future>: future provides mechanism to access result of async operations.
+- `#include <future>`: future provides mechanism to access result of async operations.
 - std::async: function without synchronization
 - future<datatype> asyncFunctionName = async(functiontocall, functionparameters);: create the async function and calls it. Non-blocking and continues to next line after calling this.
 - datatype result = asyncFunctionName.get();: blocking and wait for function to complete
@@ -138,6 +147,13 @@ lambda function: functional programming
         - insert additional function call in our code. Helps to detect data race.
     - clang also has fsanitize=thread. (read https://clang.llvm.org/docs/AddressSanitizer.html)
 
+# 14 Using a trylock
+- trylock.cpp
+- try_lock: if no thread is using mutex, acquire lock, else continue without acquiring lock.
+- using namespace std::chrono_literals
+- std::this_thread::sleep_for(5s) instead of std::this_thread::sleep_for(std::chrono::seconds(5))
+- adopt_lock is to transfer responsibility for unlocking to RAII wrapper (lock_guard or unique_lock), without locking it again from same thread. If u lock the mutext and try to lock it again from same thread, it violates the mutex's locking requirements and can deadlock or fail. Usually not needed. Prefer ordinary lock_guard or unique_lock. Use adopt_lock only when u have already acquired the mutex w/o using RAII and need an RAII wrapper to take responsibility for unlocking it.
+
 # Summary
 - U can have thread but dont have mutex. Mutex is used to protect a critical section if multiple thread could access shared variables.
 - U can use lambda function to define function that thread is doing. Function is more localized and easy to understand.
@@ -146,8 +162,11 @@ lambda function: functional programming
 - Use lock_guard as it is RAII. No need to manually unlock. It will automatically unlock when lock_guard destructor is called.
 - Use atomic for simple shared resource operations like ++ or --.
 - No need mutex, etc. if many threads are working on different variables of different elements of vector, etc. Data parallel operation.
-- condition_variable reduces resource wastage as thread does not spinlock while waiting for resource. They sleep until they are woken up by notified_one() or notified_all().
+- condition_variable reduces resource wastage as thread does not spinlock while waiting for resource. They sleep until they are woken up by notify_one() or notify_all().
 - Beware of spurious wakeup by using predicate-based wait which is equivalent to while(!notified) wait [easier to understand].
 - async function will execute in its thread (non-blocking). To get the result requires to wait until result is available.
 - To not block when getting result of async function, u can use future_status and wait_for.
-
+- Use thread sanitizer to detect data race issues in code.
+- try_lock() if u dont want to wait for lock if another thread has acquired the lock.
+- Avoid adopt_lock if possible. Use RAII wrapper in the first place.
+- If a lock has been acquired by another thread, current thread can wait with spinlock (normal lock, lock_guard, unique_lock), wait with sleeping (conditon_variable and notify_one/all), or dont wait (try_lock)
