@@ -20,6 +20,10 @@ int main(){
         if(!notified){
             gConditionVariable.wait(lock);
         }
+        // predicate-based wait.
+        // while(!notified){
+        //     gConditionVariable.wait(lock);
+        // }
         std::cout << "Reporter, result is: " << result << std::endl;
     });
 

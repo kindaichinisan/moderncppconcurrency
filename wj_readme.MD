@@ -60,3 +60,43 @@ lambda function: functional programming
 - SFML: Simple and Fast Multimedia Library
 - update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
 - Polymorphism: sf with different shapes (CircleShape, etc.)
+
+# 9 Condition Variable in Modern cpp and unique lock
+- cv.cpp
+- using normal mutex, other threads will be spinlocking while waiting, wasting resources.
+- common in producer, consumer paradigm.
+- required variables
+    - boolean notified = false (for worker thread to inform reporter thread after completing its work)
+    - lock - unique_lock
+    - condition_variable
+    - 2 threads (worker/ reporter: worker works first, reporter works after worker finishes.)
+- use lambda function to make thread function more localized and easier to read. [&]{ ...}
+- use unique_lock (flexible RAII lock that u can manually unlock and relock, vs lock_guard is a simple RAII lock)
+- work thread to set notified to true and notify_one() when complete its work
+- reporter thread to if(!notified) gConditionVariable.wait(lock);
+
+| Feature | std::lock_guard | std::unique_lock |
+|---|---|---|
+| Auto lock | Yes | Yes |
+| Auto unlock | Yes | Yes |
+| Manual unlock | No | Yes |
+| Condition variable | No | Yes |
+
+- Predicate version vs if version
+    '''
+    gConditionVariable.wait(lock, [&] {
+        return notified;
+    });
+    '''
+    is equivalent to 
+    '''
+    while (!notified) {
+        gConditionVariable.wait(lock);
+    }
+    '''
+
+    There could be spurios wakeups (waiting thread waits up w/o notification)
+- condition variable does not remb notifications but notified variable remember.
+    - if reporter thread wait() after worker thread notify_one(), then it will wait forever because condition variable does not remember notifications.
+    - this is prevented by std::unique_lock<std::mutex> lock(gLock); in both worker and reporter threads.
+    - However, spurious wakeups is not prevented in existing code. Use predicate-based wait.
