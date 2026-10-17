@@ -2,6 +2,7 @@ https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50O
 
 # 1 First thread with std::thread
 - thread1.cpp
+- #include <thread>
 - g++ -std=c++17 -pthread thread1.cpp -o prog
     - g++: compile c++ code. use GNU c++ compiler
     - -std=c++17: use c++17 language standard
@@ -35,6 +36,7 @@ lambda function: functional programming
 
 # 5 std::mutex and preventing data races in C++
 - thread5.cpp
+- #include <mutex>
 - mutex: mutual exclusion. Only 1 thread can enter critical section (atomic: smallest unit that can be accessed. Indivisible. Cannot be accessed by other thread until current thread finishes.) at any one time between lock() and unlock(). 
 - comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
 - indentation of code inside lock() and unlock()
@@ -49,6 +51,7 @@ lambda function: functional programming
 
 # 7 Using std::atomic in modern C++ to update a shared value
 - atomics1.cpp
+- #include <atomic>
 - simpler soln if considering a single shared resource like variable a.
 - atomic: atom or indivisible.
 - use a++; or a+=1; instead of a=a+1;
@@ -57,12 +60,14 @@ lambda function: functional programming
 
 # 8 Example Data Parallel C++ Program using multiple threads in SFML
 - sfml_grid.cpp
+- #include <SFML/Graphics.hpp>
 - SFML: Simple and Fast Multimedia Library
 - update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
 - Polymorphism: sf with different shapes (CircleShape, etc.)
 
 # 9 Condition Variable in Modern cpp and unique lock
 - cv.cpp
+- #include <condition_variable>
 - using normal mutex, other threads will be spinlocking while waiting, wasting resources.
 - common in producer, consumer paradigm.
 - required variables
@@ -102,7 +107,21 @@ lambda function: functional programming
     - However, spurious wakeups is not prevented in existing code. Use predicate-based wait.
 
 # 10 std::future and std::async in Modern cpp
-- std::async: function without synchronization
+- async.cpp
 - #include <future>: future provides mechanism to access result of async operations.
+- std::async: function without synchronization
 - future<datatype> asyncFunctionName = async(functiontocall, functionparameters);: create the async function and calls it. Non-blocking and continues to next line after calling this.
 - datatype result = asyncFunctionName.get();: blocking and wait for function to complete
+
+# Summary
+- U can have thread but dont have mutex. Mutex is used to protect a critical section if multiple thread could access shared variables.
+- U can use lambda function to define function that thread is doing. Function is more localized and easy to understand.
+- Using normal thread, u need to join them eventually in main before returning for no segmentation fault to occur. Another solution is to use jthread (Available in C++20).
+- Use mutex to lock() and unlock() critical section (atomic and indivisible).
+- Use lock_guard as it is RAII. No need to manually unlock. It will automatically unlock when lock_guard destructor is called.
+- Use atomic for simple shared resource operations like ++ or --.
+- No need mutex, etc. if many threads are working on different variables of different elements of vector, etc. Data parallel operation.
+- condition_variable reduces resource wastage as thread does not spinlock while waiting for resource. They sleep until they are woken up by notified_one() or notified_all().
+- Beware of spurious wakeup by using predicate-based wait which is equivalent to while(!notified) wait [easier to understand].
+- async function will execute in its thread (non-blocking). To get the result requires to wait until result is available.
+
