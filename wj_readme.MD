@@ -56,6 +56,7 @@ lambda function: functional programming
 - applicable for primitive data type (bool, char, short, int, etc.)
 
 # 8 Example Data Parallel C++ Program using multiple threads in SFML
+- sfml_grid.cpp
 - SFML: Simple and Fast Multimedia Library
 - update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
 - Polymorphism: sf with different shapes (CircleShape, etc.)
