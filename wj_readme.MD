@@ -100,3 +100,9 @@ lambda function: functional programming
     - if reporter thread wait() after worker thread notify_one(), then it will wait forever because condition variable does not remember notifications.
     - this is prevented by std::unique_lock<std::mutex> lock(gLock); in both worker and reporter threads.
     - However, spurious wakeups is not prevented in existing code. Use predicate-based wait.
+
+# 10 std::future and std::async in Modern cpp
+- std::async: function without synchronization
+- #include <future>: future provides mechanism to access result of async operations.
+- future<datatype> asyncFunctionName = async(functiontocall, functionparameters);: create the async function and calls it. Non-blocking and continues to next line after calling this.
+- datatype result = asyncFunctionName.get();: blocking and wait for function to complete
