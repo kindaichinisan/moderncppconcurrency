@@ -46,3 +46,10 @@ lambda function: functional programming
 - soln: use better primitives like lock_guard (mutex wrapper that provides RAII-style). Auto unlock() when destructor of lock_guard is called
 - scoped_lock is preferred one in C++17 with multiple mutex protection.
 - RAII: Resource Acquisition Is Initialization. C++ programming technique where a resource is acquired when an object is constructed and automatically released when the object is destroyed. Key idea is to use object lifetime to manage resources automatically, instead of manually releasing them.
+
+# 7 Using std::atomic in modern C++ to update a shared value
+- simpler soln if considering a single shared resource like variable a.
+- atomic: atom or indivisible.
+- use a++; or a+=1; instead of a=a+1;
+- use hardware to implement.
+- applicable for primitive data type (bool, char, short, int, etc.)
