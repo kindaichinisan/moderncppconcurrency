@@ -1,6 +1,8 @@
+Introduction to Concurrency in C++
 https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50OCXM
 
-# 1 First thread with std::thread
+# 1 The what and why of concurrency
+# 2 First thread with std::thread
 - thread1.cpp
 - #include <thread>
 - g++ -std=c++17 -pthread thread1.cpp -o prog
@@ -14,7 +16,7 @@ https://www.youtube.com/watch?v=Fn0xBsmact4&list=PLvv0ScY6vfd_ocTP2ZLicgqKnvq50O
 - threadInst.join(): current thread wait for threadInst to complete, then continue.
 -- join() needed in order to avoid core dump in program.
 
-# 2 std::thread with a lambda in modern c++
+# 3 std::thread with a lambda in modern c++
 - thread2.cpp
 lambda function: functional programming
 - lambda: function name
@@ -23,25 +25,25 @@ lambda function: functional programming
     - [&a]: pass a by reference
 - lambda = anonymous function = RHS of auto lambda=[](int x){...
 
-# 3 Launching multiple std::thread in C++
+# 4 Launching multiple std::thread in C++
 - thread3.cpp
 - create multiple threads
 - this_thread::get_id()
 - initial code create thread and push into vector, then join() and is destroyed, hence all thread ID is the same (dependent on OS C++ implementation if terminated thread ID is reused). In my Windows laptop, the terminated thread ID is not reused. In the course lecturer laptop, the terminated thread ID is reused.
 - final code create 10 threads first and push into vector. Then use another for loop to join() them. They will have different thread ID.
 
-# 4 jthread std::jthread in C++ 20
+# 5 jthread std::jthread in C++ 20
 - thread4.cpp
 - Uses jthread so that we dont need to join by end of main program. jthread will join for us in the destructor. Available in C++20. Previously, we use thread which is available in C++11.
 
-# 5 std::mutex and preventing data races in C++
+# 6 std::mutex and preventing data races in C++
 - thread5.cpp
 - #include <mutex>
 - mutex: mutual exclusion. Only 1 thread can enter critical section (atomic: smallest unit that can be accessed. Indivisible. Cannot be accessed by other thread until current thread finishes.) at any one time between lock() and unlock(). 
 - comment gLock.lock(); and gLock.unlock(); in shared_value_increment() to see data race, unexpected behaviour due to non-sync of thread.
 - indentation of code inside lock() and unlock()
 
-# 6 Preventing deadlock with std::lock_guard in modern C++
+# 7 Preventing deadlock with std::lock_guard in modern C++
 - thread6.cpp
 - if using lock() and forget to unlock(), will enter into deadlock as other threads cannot progress.
 - Sometime, code is complicated and it is not just a matter of forget to unlock(). Eg is try catch block.
@@ -49,7 +51,7 @@ lambda function: functional programming
 - scoped_lock is preferred one in C++17 with multiple mutex protection.
 - RAII: Resource Acquisition Is Initialization. C++ programming technique where a resource is acquired when an object is constructed and automatically released when the object is destroyed. Key idea is to use object lifetime to manage resources automatically, instead of manually releasing them.
 
-# 7 Using std::atomic in modern C++ to update a shared value
+# 8 Using std::atomic in modern C++ to update a shared value
 - atomics1.cpp
 - #include <atomic>
 - simpler soln if considering a single shared resource like variable a.
@@ -58,14 +60,14 @@ lambda function: functional programming
 - use hardware to implement.
 - applicable for primitive data type (bool, char, short, int, etc.)
 
-# 8 Example Data Parallel C++ Program using multiple threads in SFML
+# 9 Example Data Parallel C++ Program using multiple threads in SFML
 - sfml_grid.cpp
 - #include <SFML/Graphics.hpp>
 - SFML: Simple and Fast Multimedia Library
 - update_grid is function executed by each thread. No need lock as each thread is working independently on each grid cell.
 - Polymorphism: sf with different shapes (CircleShape, etc.)
 
-# 9 Condition Variable in Modern cpp and unique lock
+# 10 Condition Variable in Modern cpp and unique lock
 - cv.cpp
 - #include <condition_variable>
 - using normal mutex, other threads will be spinlocking while waiting, wasting resources.
@@ -106,12 +108,26 @@ lambda function: functional programming
     - this is prevented by std::unique_lock<std::mutex> lock(gLock); in both worker and reporter threads.
     - However, spurious wakeups is not prevented in existing code. Use predicate-based wait.
 
-# 10 std::future and std::async in Modern cpp
+# 11 std::future and std::async in Modern cpp
 - async.cpp
 - #include <future>: future provides mechanism to access result of async operations.
 - std::async: function without synchronization
 - future<datatype> asyncFunctionName = async(functiontocall, functionparameters);: create the async function and calls it. Non-blocking and continues to next line after calling this.
 - datatype result = asyncFunctionName.get();: blocking and wait for function to complete
+
+# 12 std::async in cpp with background thread loading data example
+- async_buffer.cpp
+- youtube example of stopping video but streaming bar keeps progressing.
+- argument in async function: launch_policy:
+    - async
+    - deferred
+- future_status:
+    - ready
+    - timeout
+    - deferred
+- std::future_status status = backgroundThread.wait_for(std::chrono::milliseconds(1));
+- if(status == std::future_status::ready){ ...
+- This prevents u from using get() which is a blocking call. U can use wait_for() which is non-blocking call.
 
 # Summary
 - U can have thread but dont have mutex. Mutex is used to protect a critical section if multiple thread could access shared variables.
@@ -124,4 +140,5 @@ lambda function: functional programming
 - condition_variable reduces resource wastage as thread does not spinlock while waiting for resource. They sleep until they are woken up by notified_one() or notified_all().
 - Beware of spurious wakeup by using predicate-based wait which is equivalent to while(!notified) wait [easier to understand].
 - async function will execute in its thread (non-blocking). To get the result requires to wait until result is available.
+- To not block when getting result of async function, u can use future_status and wait_for.
 
