@@ -129,6 +129,15 @@ lambda function: functional programming
 - if(status == std::future_status::ready){ ...
 - This prevents u from using get() which is a blocking call. U can use wait_for() which is non-blocking call.
 
+# 13 Example of gcc and clang thread sanitizer to detect data race
+- datarace.cpp
+- tool to work with multi-threaded program
+    - Thread Sanitizer in gcc (google shadow byte)
+        - -fsanitize=thread (read https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html)
+        - g++ -fsanitize=thread -std=c++17 datarace.cpp -o prog - lpthread
+        - insert additional function call in our code. Helps to detect data race.
+    - clang also has fsanitize=thread. (read https://clang.llvm.org/docs/AddressSanitizer.html)
+
 # Summary
 - U can have thread but dont have mutex. Mutex is used to protect a critical section if multiple thread could access shared variables.
 - U can use lambda function to define function that thread is doing. Function is more localized and easy to understand.
